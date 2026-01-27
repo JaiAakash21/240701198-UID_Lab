@@ -224,20 +224,11 @@
         }
 
         function copyColor(color) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(color).then(() => {
+            window.uidLab.copyToClipboard(color).then((success) => {
+                if (success) {
                     showNotification();
-                });
-            } else {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = color;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showNotification();
-            }
+                }
+            });
         }
 
         function showNotification() {

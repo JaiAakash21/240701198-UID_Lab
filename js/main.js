@@ -105,13 +105,32 @@ function animateElement(element, animationClass, duration = 1000) {
 // Copy to clipboard utility
 function copyToClipboard(text) {
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
+        return navigator.clipboard.writeText(text).then(() => {
             console.log('Copied to clipboard:', text);
             return true;
         }).catch(err => {
             console.error('Failed to copy:', err);
             return false;
         });
+    } else {
+        // Fallback for older browsers
+        try {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                console.log('Copied to clipboard:', text);
+            }
+            return Promise.resolve(successful);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            return Promise.resolve(false);
+        }
     }
 }
 
