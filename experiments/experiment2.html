@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 2: Color Palette - UID Lab</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .palette-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .color-item {
+            text-align: center;
+        }
+
+        .color-code {
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .color-scheme-selector {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .color-scheme-selector:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">UID Lab</h1>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="experiment1.html">Experiment 1</a></li>
+                    <li><a href="experiment2.html" class="active">Experiment 2</a></li>
+                    <li><a href="experiment3.html">Experiment 3</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Experiment 2: Color Palette Generator</h2>
+                <p class="subtitle">Explore and generate beautiful color palettes</p>
+            </div>
+        </section>
+
+        <section class="experiments-grid">
+            <div class="container">
+                <div class="card">
+                    <h3>Interactive Color Palette</h3>
+                    <p>Click on any color to copy its hex code to clipboard</p>
+
+                    <div class="controls">
+                        <button class="btn" onclick="generateRandomPalette()">Generate Random</button>
+                        <button class="color-scheme-selector" onclick="generateScheme('monochromatic')">Monochromatic</button>
+                        <button class="color-scheme-selector" onclick="generateScheme('complementary')">Complementary</button>
+                        <button class="color-scheme-selector" onclick="generateScheme('analogous')">Analogous</button>
+                        <button class="color-scheme-selector" onclick="generateScheme('triadic')">Triadic</button>
+                    </div>
+
+                    <div id="paletteContainer" class="palette-container"></div>
+
+                    <div id="notification" style="display: none; text-align: center; margin-top: 1rem; padding: 1rem; background-color: var(--secondary-color); color: white; border-radius: var(--border-radius);">
+                        Color copied to clipboard!
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 UID Lab - User Interface Design Experiments</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        const paletteContainer = document.getElementById('paletteContainer');
+        const notification = document.getElementById('notification');
+
+        function generateRandomPalette() {
+            const colors = [];
+            for (let i = 0; i < 5; i++) {
+                colors.push(window.uidLab.generateRandomColor());
+            }
+            displayPalette(colors);
+        }
+
+        function generateScheme(type) {
+            const baseColor = window.uidLab.generateRandomColor();
+            const colors = [];
+
+            switch(type) {
+                case 'monochromatic':
+                    colors.push(...generateMonochromatic(baseColor));
+                    break;
+                case 'complementary':
+                    colors.push(...generateComplementary(baseColor));
+                    break;
+                case 'analogous':
+                    colors.push(...generateAnalogous(baseColor));
+                    break;
+                case 'triadic':
+                    colors.push(...generateTriadic(baseColor));
+                    break;
+            }
+
+            displayPalette(colors);
+        }
+
+        function generateMonochromatic(baseColor) {
+            const rgb = window.uidLab.hexToRgb(baseColor);
+            const colors = [baseColor];
+
+            for (let i = 1; i < 5; i++) {
+                const factor = 1 - (i * 0.15);
+                const newR = Math.round(rgb.r * factor);
+                const newG = Math.round(rgb.g * factor);
+                const newB = Math.round(rgb.b * factor);
+                colors.push(window.uidLab.rgbToHex(newR, newG, newB));
+            }
+
+            return colors;
+        }
+
+        function generateComplementary(baseColor) {
+            const rgb = window.uidLab.hexToRgb(baseColor);
+            const colors = [baseColor];
+
+            // Complementary color (opposite on color wheel)
+            const compR = 255 - rgb.r;
+            const compG = 255 - rgb.g;
+            const compB = 255 - rgb.b;
+            colors.push(window.uidLab.rgbToHex(compR, compG, compB));
+
+            // Add variations
+            for (let i = 0; i < 3; i++) {
+                colors.push(window.uidLab.generateRandomColor());
+            }
+
+            return colors;
+        }
+
+        function generateAnalogous(baseColor) {
+            const rgb = window.uidLab.hexToRgb(baseColor);
+            const colors = [baseColor];
+
+            // Generate adjacent colors
+            for (let i = 1; i < 5; i++) {
+                const shift = i * 20;
+                const newR = (rgb.r + shift) % 256;
+                const newG = (rgb.g + shift) % 256;
+                const newB = rgb.b;
+                colors.push(window.uidLab.rgbToHex(newR, newG, newB));
+            }
+
+            return colors;
+        }
+
+        function generateTriadic(baseColor) {
+            const rgb = window.uidLab.hexToRgb(baseColor);
+            const colors = [baseColor];
+
+            // Generate triadic colors (120 degrees apart)
+            colors.push(window.uidLab.rgbToHex(rgb.g, rgb.b, rgb.r));
+            colors.push(window.uidLab.rgbToHex(rgb.b, rgb.r, rgb.g));
+
+            // Add two more variations
+            for (let i = 0; i < 2; i++) {
+                colors.push(window.uidLab.generateRandomColor());
+            }
+
+            return colors;
+        }
+
+        function displayPalette(colors) {
+            paletteContainer.innerHTML = '';
+
+            colors.forEach(color => {
+                const colorItem = document.createElement('div');
+                colorItem.className = 'color-item';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = color;
+                colorBox.title = 'Click to copy ' + color;
+                colorBox.addEventListener('click', () => copyColor(color));
+
+                const colorCode = document.createElement('div');
+                colorCode.className = 'color-code';
+                colorCode.textContent = color.toUpperCase();
+
+                colorItem.appendChild(colorBox);
+                colorItem.appendChild(colorCode);
+                paletteContainer.appendChild(colorItem);
+            });
+        }
+
+        function copyColor(color) {
+            window.uidLab.copyToClipboard(color).then((success) => {
+                if (success) {
+                    showNotification();
+                }
+            });
+        }
+
+        function showNotification() {
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+
+        // Initialize with a random palette
+        generateRandomPalette();
+    </script>
+</body>
+</html>
