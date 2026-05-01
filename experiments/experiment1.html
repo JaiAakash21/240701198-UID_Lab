@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment 1: Interactive Form - UID Lab</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <h1 class="logo">UID Lab</h1>
+                <ul class="nav-menu">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="experiment1.html" class="active">Experiment 1</a></li>
+                    <li><a href="experiment2.html">Experiment 2</a></li>
+                    <li><a href="experiment3.html">Experiment 3</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h2>Experiment 1: Interactive Form</h2>
+                <p class="subtitle">Real-time form validation with user feedback</p>
+            </div>
+        </section>
+
+        <section class="experiments-grid">
+            <div class="container">
+                <div class="card">
+                    <h3>Contact Form with Validation</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Name *</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject *</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="support">Technical Support</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message *</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn">Submit Form</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                    </form>
+
+                    <div id="formResult" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 UID Lab - User Interface Design Experiments</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        const form = document.getElementById('contactForm');
+        const formResult = document.getElementById('formResult');
+
+        // Real-time validation
+        form.querySelectorAll('input, textarea, select').forEach(field => {
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+
+            field.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    validateField(this);
+                }
+            });
+        });
+
+        function validateField(field) {
+            window.uidLab.clearError(field);
+
+            if (field.hasAttribute('required') && !field.value.trim()) {
+                window.uidLab.showError(field, 'This field is required');
+                return false;
+            }
+
+            if (field.type === 'email' && field.value) {
+                if (!window.uidLab.validateEmail(field.value)) {
+                    window.uidLab.showError(field, 'Please enter a valid email address');
+                    return false;
+                }
+            }
+
+            if (field.type === 'tel' && field.value) {
+                if (!/^[0-9]{10}$/.test(field.value)) {
+                    window.uidLab.showError(field, 'Please enter a 10-digit phone number');
+                    return false;
+                }
+            }
+
+            if (field.value) {
+                window.uidLab.showSuccess(field, '✓');
+            }
+
+            return true;
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let isValid = true;
+            form.querySelectorAll('input[required], textarea[required], select[required]').forEach(field => {
+                if (!validateField(field)) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                formResult.style.display = 'block';
+                formResult.style.backgroundColor = '#d4edda';
+                formResult.style.color = '#155724';
+                formResult.innerHTML = '<strong>Success!</strong> Your form has been submitted successfully.';
+                
+                setTimeout(() => {
+                    formResult.style.display = 'none';
+                    form.reset();
+                    form.querySelectorAll('.success-message').forEach(msg => msg.remove());
+                }, 3000);
+            } else {
+                formResult.style.display = 'block';
+                formResult.style.backgroundColor = '#f8d7da';
+                formResult.style.color = '#721c24';
+                formResult.innerHTML = '<strong>Error!</strong> Please correct the errors above.';
+            }
+        });
+
+        function resetForm() {
+            form.reset();
+            form.querySelectorAll('.error-message, .success-message').forEach(msg => msg.remove());
+            form.querySelectorAll('.error').forEach(field => field.classList.remove('error'));
+            formResult.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
